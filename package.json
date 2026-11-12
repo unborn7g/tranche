@@ -1,0 +1,25 @@
+{
+  "name": "tranche-mezo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/compile.mjs",
+    "dev": "vite",
+    "build": "node scripts/compile.mjs && vite build",
+    "test": "node scripts/compile.mjs && node --test",
+    "predeploy:testnet": "node scripts/compile.mjs",
+    "deploy:testnet": "node scripts/deploy.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.2.0",
+    "@fontsource-variable/geist": "^5.2.0",
+    "@openzeppelin/contracts": "5.0.2",
+    "viem": "2.43.3"
+  },
+  "devDependencies": {
+    "ganache": "7.9.2",
+    "solc": "0.8.28",
+    "vite": "7.3.1"
+  }
+}
