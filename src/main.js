@@ -2,7 +2,7 @@ import '@fontsource-variable/geist';
 import '@fontsource-variable/dm-sans';
 import './style.css';
 import { formatEther, formatUnits, getAddress, isAddress, keccak256, parseUnits, stringToHex, zeroAddress } from 'viem';
-import { connectWallet, makeReader, mezo, planBorrow, reviewTypes, simulateBorrow } from './mezo.js';
+import { connectWallet, makeReader, mezo, planBorrow, reviewTypes, sameAddress, simulateBorrow } from './mezo.js';
 import { approveMusd, confirmed, deployEscrow, ensureAccount, escrowAbi, escrowConfig, escrowWrite, eventArgs, getMilestone } from './live.js';
 import { button, explorer, formatAmount, icon, renderApp, safe, short, statusLabels } from './ui.js';
 
@@ -28,10 +28,13 @@ function saveStorage(key, value) {
   try { localStorage.setItem(`tranche:${key}`, JSON.stringify(value)); } catch { /* Private browsing can disable storage. */ }
 }
 
-const sharedAddress = params.get('escrow');
-const address = isAddress(sharedAddress ?? '', { strict: false }) ? getAddress(sharedAddress) : readStorage('escrow', null);
+const sharedMilestone = params.get('milestone');
+const hasShareLink = params.has('escrow') || sharedMilestone !== null;
+const selectedAddress = hasShareLink ? params.get('escrow') : readStorage('escrow', null);
+const address = typeof selectedAddress === 'string' && isAddress(selectedAddress, { strict: false }) &&
+  !sameAddress(selectedAddress, zeroAddress) ? getAddress(selectedAddress) : null;
 const state = {
-  mode: sharedAddress ? 'testnet' : 'demo', view: 'milestone', demo: readStorage('demo-v1', emptyDemo()),
+  mode: hasShareLink ? 'testnet' : 'demo', view: 'milestone', demo: readStorage('demo-v1', emptyDemo()),
   session: null, address, live: null, config: null, busy: false,
   events: readStorage('testnet-events', []),
 };
@@ -185,12 +188,14 @@ function showReview() {
         return decision === null || decision === '' ? [] : [{ line, index, decision: Number(decision) }];
       });
       if (!choices.length) throw new Error('Choose a decision for at least one work item.');
+      const evidence = String(data.get('evidence') ?? '').trim();
+      if (!evidence) throw new Error('Enter an evidence or review note.');
       if (demo) {
         for (const { index, decision } of choices) state.demo.statuses[index] = [1, 2, 4][decision];
         addEvent('Work items reviewed', `${choices.length} decisions recorded`, 'file');
       } else {
         await ensureAccount(state.session);
-        const evidenceHash = keccak256(stringToHex(String(data.get('evidence')).trim()));
+        const evidenceHash = keccak256(stringToHex(evidence));
         const reviews = choices.map(({ line, index, decision }) => ({
           milestoneId: current.id, lineIndex: BigInt(index), decision, evidenceHash, revision: line.revision + 1n, deadline: txDeadline(),
         }));
@@ -351,7 +356,9 @@ const actions = {
     return work(async () => {
       state.session = await connectWallet(window.ethereum);
       say(`Connected ${short(state.session.account)} on Mezo Testnet.`);
-      if (state.address && !state.live && params.has('milestone')) await loadMilestone(milestoneId(params.get('milestone')));
+      if (sharedMilestone !== null && sameAddress(state.address, address) && !state.live) {
+        await loadMilestone(milestoneId(sharedMilestone));
+      }
     });
   },
   attach() {
@@ -427,6 +434,8 @@ window.ethereum?.on?.('accountsChanged', () => { state.session = null; render();
 window.ethereum?.on?.('chainChanged', () => { state.session = null; render(); });
 
 render();
-if (state.mode === 'testnet' && state.address && params.has('milestone')) {
-  void work(() => loadMilestone(milestoneId(params.get('milestone'))));
+if (hasShareLink && !state.address) {
+  say('This link has an invalid or missing escrow address.', { error: true });
+} else if (sharedMilestone !== null) {
+  void work(() => loadMilestone(milestoneId(sharedMilestone)));
 }

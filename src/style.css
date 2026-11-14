@@ -93,7 +93,7 @@ svg { flex: none; }
 .card h2 { font: 710 1.18rem/1.2 'DM Sans Variable', sans-serif; letter-spacing: -.032em; }
 .card-title p { margin-top: 4px; color: var(--muted); font-size: .77rem; }
 .count-pill { padding: 5px 8px; color: #625c76; background: #f5f3f8; border: 1px solid #eeecf3; border-radius: 7px; font-size: .71rem; white-space: nowrap; }
-.table-wrap { overflow-x: auto; }
+.table-wrap { position: relative; overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; text-align: left; }
 th { padding: 10px 7px; border-block: 1px solid #f0eef4; background: #fbfafc; color: #68647b; font-size: .7rem; font-weight: 650; white-space: nowrap; }
 td { padding: 13px 7px; border-bottom: 1px solid #f1eff4; font-size: .8rem; vertical-align: middle; }
