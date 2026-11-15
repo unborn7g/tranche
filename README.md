@@ -50,7 +50,7 @@ npm run dev
 
 Open the URL printed by the development server. Demo mode uses simulated funds and browser storage. You can also inspect [testnet milestone #1](https://tranche-mezo.vercel.app/?escrow=0xd7813f530fd625added1b4b8c1d09e0e4dd6be3d&milestone=1) using the public Mezo Testnet RPC without connecting a wallet.
 
-In a separate terminal, run the contract tests and build the static frontend.
+In a separate terminal, run the automated tests and build the static frontend.
 
 ```bash
 npm test
@@ -83,21 +83,24 @@ The Mezo Testnet run settled in MUSD. The implementation is a testnet prototype 
 
 ## Automated tests
 
-Run `npm test` after `npm ci` to compile the contract and run 79 named cases.
+Run `npm test` after `npm ci` to compile the contract and run 279 named cases.
 
-The 39 contract cases run on a local Ganache chain with mock tokens and a mock swap router.
+The 110 contract cases run on a local Ganache chain with mock tokens and a mock swap router.
 
 - Milestone creation and exact funding, including rejected deposits and allowance failures.
 - Signed reviews, including tampered fields, expired signatures, replay, and signatures for a different chain, escrow, or milestone.
 - Partial release, dispute refunds, milestone isolation, and rollback of mined batches when a review or payment fails.
 - Direct MUSD and mUSDC payout preferences, minimum amounts, owner top-ups, and rollback when the swap router delivers too little.
+- Review decisions, settlement, and payout preferences across every line state and the applicable wallet roles. Mined receipts also verify the escrow events.
 - One budget conservation test that checks balances after each step of six payout and refund sequences, including a batch of 12 work items.
 
-The 40 app cases use a simulated wallet and RPC responses.
+The 169 app cases test forms, workspace views, and transaction paths. Wallet and chain responses are simulated in the transaction tests.
 
 - Wallet connection, Mezo Testnet setup, account changes, and declined requests.
 - Mezo loan minimums, fees, gas reserves, collateral, and transaction simulation.
 - Escrow deployment checks, exact token approvals, transaction receipts, and milestone event decoding.
+- Amount precision, milestone IDs, review notes, and shared links that must select their own escrow.
+- Role-specific controls, Demo and Testnet workflows, and the distinction between paid, disputed, and refunded amounts.
 
 ## What’s next
 
