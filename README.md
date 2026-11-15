@@ -81,15 +81,23 @@ Review notes stay in the browser input. The chain records their hashes, along wi
 
 The Mezo Testnet run settled in MUSD. The implementation is a testnet prototype and has not been independently audited.
 
-## Automated contract tests
+## Automated tests
 
-Run `npm test` after `npm ci` to compile the contract and run 39 named cases on a local Ganache chain with mock tokens and a mock swap router.
+Run `npm test` after `npm ci` to compile the contract and run 79 named cases.
+
+The 39 contract cases run on a local Ganache chain with mock tokens and a mock swap router.
 
 - Milestone creation and exact funding, including rejected deposits and allowance failures.
 - Signed reviews, including tampered fields, expired signatures, replay, and signatures for a different chain, escrow, or milestone.
 - Partial release, dispute refunds, milestone isolation, and rollback of mined batches when a review or payment fails.
 - Direct MUSD and mUSDC payout preferences, minimum amounts, owner top-ups, and rollback when the swap router delivers too little.
 - One budget conservation test that checks balances after each step of six payout and refund sequences, including a batch of 12 work items.
+
+The 40 app cases use a simulated wallet and RPC responses.
+
+- Wallet connection, Mezo Testnet setup, account changes, and declined requests.
+- Mezo loan minimums, fees, gas reserves, collateral, and transaction simulation.
+- Escrow deployment checks, exact token approvals, transaction receipts, and milestone event decoding.
 
 ## What’s next
 
