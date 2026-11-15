@@ -19,8 +19,10 @@ contract MockToken is ERC20 {
 
 contract MockRouter is IMezoRouter {
     uint256 public bps = 9_950;
+    uint256 public deliveryBps = 10_000;
 
     function setRate(uint256 bps_) external { bps = bps_; }
+    function setDeliveryBps(uint256 deliveryBps_) external { deliveryBps = deliveryBps_; }
 
     function getAmountsOut(uint256 amountIn, Route[] calldata) public view returns (uint256[] memory amounts) {
         amounts = new uint256[](2);
@@ -35,6 +37,6 @@ contract MockRouter is IMezoRouter {
         require(routes[0].stable && routes[0].factory != address(0), "wrong route");
         require(block.timestamp <= deadline && amounts[1] >= minimum, "quote expired or too low");
         require(IERC20(routes[0].from).transferFrom(msg.sender, address(this), amountIn), "input transfer");
-        MockToken(routes[0].to).mint(to, amounts[1]);
+        MockToken(routes[0].to).mint(to, amounts[1] * deliveryBps / 10_000);
     }
 }

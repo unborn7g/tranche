@@ -79,7 +79,17 @@ The escrow stores recipient addresses, MUSD budgets, and held balances per miles
 
 Review notes stay in the browser input. The chain records their hashes, along with public wallet addresses and amounts. The product assumes a trusted reviewer. If a reviewer becomes unavailable, unresolved funds remain held. The contract has no upgrade or admin withdrawal path. The activity view records this browser’s confirmed transactions. Anyone with the milestone link can read the current on-chain state.
 
-The local contract tests use Ganache, mock tokens, and a mock swap router. They cover partial settlement, unauthorized and replayed reviews, dispute resolution, and atomic rollback when payout falls below the minimum. The Mezo Testnet run settled in MUSD. The tests exercise the mUSDC swap path with a mock router. The implementation is a testnet prototype and has not been independently audited.
+The Mezo Testnet run settled in MUSD. The implementation is a testnet prototype and has not been independently audited.
+
+## Automated contract tests
+
+Run `npm test` after `npm ci` to compile the contract and run 39 named cases on a local Ganache chain with mock tokens and a mock swap router.
+
+- Milestone creation and exact funding, including rejected deposits and allowance failures.
+- Signed reviews, including tampered fields, expired signatures, replay, and signatures for a different chain, escrow, or milestone.
+- Partial release, dispute refunds, milestone isolation, and rollback of mined batches when a review or payment fails.
+- Direct MUSD and mUSDC payout preferences, minimum amounts, owner top-ups, and rollback when the swap router delivers too little.
+- One budget conservation test that checks balances after each step of six payout and refund sequences, including a batch of 12 work items.
 
 ## What’s next
 
